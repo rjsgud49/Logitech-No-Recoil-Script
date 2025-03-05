@@ -8,9 +8,9 @@ function OnEvent(event, arg)
     if (event == "MOUSE_BUTTON_PRESSED" and arg == 3) then
         recoil = not recoil
         if recoil then
-            OutputLogMessage("Recoil ON\n")
+            OutputLogMessage("[✔]Recoil ON\n")
         else
-            OutputLogMessage("Recoil OFF\n")
+            OutputLogMessage("[✖]Recoil OFF\n")
         end
     end
 
