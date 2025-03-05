@@ -1,7 +1,7 @@
 EnablePrimaryMouseButtonEvents(true)
 
 local autoFire = false
-local fireRate = 80  -- 연사 속도 (밀리초, 낮을수록 빠름)
+local fireRate = 5000  -- 연사 속도 (밀리초, 낮을수록 빠름)
 
 function OnEvent(event, arg)
     -- 매크로 토글 (마우스 휠 클릭 사용)
