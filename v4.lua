@@ -10,9 +10,25 @@ function OnEvent(event, arg)
     if (event == "MOUSE_BUTTON_PRESSED" and arg == 6) then
         recoil = not recoil
         if recoil then
-            OutputLogMessage("[✔] Recoil ON\n")
+            OutputLogMessage([[
+  ___   _ __  
+ / _ \ | '_ \ 
+| (_) || | | |
+ \___/ |_| |_|
+
+Recoil ON
+]])
         else
-            OutputLogMessage("[✖] Recoil OFF\n")
+            OutputLogMessage([[
+ _____ ______ ______ 
+|  _  ||  ___||  ___|
+| | | || |_   | |_   
+| | | ||  _|  |  _|  
+\ \_/ /| |    | |    
+ \___/ \_|    \_|    
+
+Recoil OFF
+]])
         end
     end
 
