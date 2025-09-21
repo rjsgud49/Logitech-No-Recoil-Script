@@ -35,7 +35,7 @@ Recoil OFF
     -- 반동제어 실행 (좌클릭 + 우클릭 동시에 눌렸을 때만 작동)
     if (event == "MOUSE_BUTTON_PRESSED" and arg == 1 and recoil) then
         if IsMouseButtonPressed(3) then   -- 우클릭 체크 추가
-            OutputLogMessage("Recoil Activated (RMB held)\n")
+            --OutputLogMessage("Recoil Activated (RMB held)\n")
 
             -- 최소 1회 반동 적용
             MoveMouseRelative(0, recoilStrength)
@@ -47,7 +47,7 @@ Recoil OFF
                 Sleep(10)
             end
         else
-            OutputLogMessage("Recoil skipped (RMB not held)\n")
+            --OutputLogMessage("Recoil skipped (RMB not held)\n")
         end
     end
 end
