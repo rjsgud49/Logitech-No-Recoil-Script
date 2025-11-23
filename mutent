@@ -1,0 +1,169 @@
+EnablePrimaryMouseButtonEvents(true)
+
+-- =========[ 설정 ]=========
+local mode          = "hybrid"  -- "burst" | "hold" | "hybrid"
+local enabled       = true      -- M6로 ON/OFF
+local requireRMB    = true      -- true면 우클릭(ADS) 중일 때만 동작
+
+-- ====== [ 버스트(클릭당 짧은 하강) ] ======
+local minInterval   = 50        -- 버스트 간 최소 간격(ms)
+local burstPixels   = 18        -- 클릭 1번당 내릴 총량(px) (14~24 권장)
+local steps         = 6         -- 분할 단계 수
+local stepDelay     = 6         -- 단계 간 딜레이(ms)
+local curve         = "easeOut" -- "flat" | "easeOut" | "easeInOut"
+
+-- ====== [ 자동클릭 ] ======
+local BPM           = 380
+local clickInterval = math.floor(60000 / BPM)  -- ≈ 158ms
+local pressMs       = 12
+
+-- ====== [ 지속 하강(연속 보정) ] ======
+local TICK_MS       = 10        -- 루프 주기(ms) 8~12 권장
+local pullPerSec    = 200       -- 초당 내려갈 픽셀(px/s) ← 무기/감도에 맞춰 조정
+local rampMs        = 160       -- 최초 램프업 시간(ms)
+local holdCurve     = "easeOut" -- "flat" | "easeOut" | "easeInOut"
+
+-- =========[ 내부 상태 ]=========
+local isCompensating = false
+local lastBurstTime  = 0
+local isAutoClicking = false
+local lmbHeld        = false
+
+-- =========[ 유틸 ]=========
+local function easeOut(t) return 1 - (1 - t) * (1 - t) end
+local function easeInOut(t) return (t < 0.5) and (2*t*t) or (1 - (-2*t + 2)^2 / 2) end
+
+local function fraction(i, n, kind)
+    local t1 = (i-1)/n
+    local t2 = i/n
+    local f1, f2
+    if kind == "easeOut" then
+        f1, f2 = easeOut(t1), easeOut(t2)
+    elseif kind == "easeInOut" then
+        f1, f2 = easeInOut(t1), easeInOut(t2)
+    else
+        f1, f2 = t1, t2
+    end
+    return f2 - f1
+end
+
+-- =========[ 버스트 1회 ]=========
+local function doBurst()
+    local now = GetRunningTime()
+    if isCompensating or (now - lastBurstTime) < minInterval then return end
+    isCompensating = true
+    lastBurstTime = now
+
+    for i = 1, steps do
+        if requireRMB and not IsMouseButtonPressed(3) then break end
+        local dy = math.max(1, math.floor(burstPixels * fraction(i, steps, curve) + 0.5))
+        MoveMouseRelative(0, dy)
+        Sleep(stepDelay)
+    end
+
+    isCompensating = false
+end
+
+-- =========[ 하이브리드(지속 하강 + 자동클릭) 루프 ]=========
+local function hybridLoop()
+    local start = GetRunningTime()
+    local nextTick = start
+    local nextClick = start
+    local accum = 0.0
+
+    while lmbHeld and enabled and (not requireRMB or IsMouseButtonPressed(3)) do
+        nextTick = nextTick + TICK_MS
+
+        -- 1) 지속 하강 (램프업 + 곡선)
+        local elapsed = GetRunningTime() - start
+        local t = math.min(1.0, elapsed / rampMs)
+        local rampFactor = (holdCurve=="easeOut") and easeOut(t)
+                       or (holdCurve=="easeInOut") and easeInOut(t)
+                       or t
+        local dyFloat = (pullPerSec / 1000.0) * TICK_MS * (0.25 + 0.75 * rampFactor)
+        accum = accum + dyFloat
+        local dy = math.floor(accum + 0.0001)
+        if dy >= 1 then
+            MoveMouseRelative(0, dy)
+            accum = accum - dy
+        end
+
+        -- 2) 380BPM 자동클릭 스케줄
+        if GetRunningTime() >= nextClick then
+            nextClick = nextClick + clickInterval
+            PressMouseButton(1)
+            Sleep(pressMs)
+            ReleaseMouseButton(1)
+            -- 필요 시 클릭당 추가 하강을 원하면 아래 한 줄 주석 해제
+            -- doBurst()
+        end
+
+        -- 3) 타이밍 정렬
+        local remain = nextTick - GetRunningTime()
+        if remain > 0 then Sleep(remain) else nextTick = GetRunningTime() end
+    end
+end
+
+-- =========[ 로그 ]=========
+local function logOn()  OutputLogMessage("\n>>> Recoil ["..mode.."] [ON] (ADS="..tostring(requireRMB)..")\n") end
+local function logOff() OutputLogMessage("\n>>> Recoil ["..mode.."] [OFF]\n") end
+
+-- =========[ 이벤트 ]=========
+function OnEvent(event, arg)
+    -- ON/OFF 토글: Mouse6
+    if event == "MOUSE_BUTTON_PRESSED" and arg == 6 then
+        enabled = not enabled
+        if enabled then logOn() else logOff() end
+        return
+    end
+
+    -- 좌클릭 상태 추적
+    if event == "MOUSE_BUTTON_PRESSED" and arg == 1 then
+        lmbHeld = true
+        if not enabled then return end
+        if requireRMB and not IsMouseButtonPressed(3) then return end
+
+        if mode == "burst" then
+            if isAutoClicking then return end
+            isAutoClicking = true
+            local nextTick = GetRunningTime()
+            while lmbHeld and enabled and (not requireRMB or IsMouseButtonPressed(3)) do
+                nextTick = nextTick + clickInterval
+                PressMouseButton(1)
+                Sleep(pressMs)
+                ReleaseMouseButton(1)
+                doBurst()
+                local remain = nextTick - GetRunningTime()
+                if remain > 0 then Sleep(remain) else nextTick = GetRunningTime() end
+            end
+            isAutoClicking = false
+        elseif mode == "hold" then
+            -- 지속 하강만
+            local start = GetRunningTime()
+            local nextTick = start
+            local accum = 0.0
+            while lmbHeld and enabled and (not requireRMB or IsMouseButtonPressed(3)) do
+                nextTick = nextTick + TICK_MS
+                local elapsed = GetRunningTime() - start
+                local t = math.min(1.0, elapsed / rampMs)
+                local rampFactor = (holdCurve=="easeOut") and easeOut(t)
+                               or (holdCurve=="easeInOut") and easeInOut(t)
+                               or t
+                local dyFloat = (pullPerSec / 1000.0) * TICK_MS * (0.25 + 0.75 * rampFactor)
+                accum = accum + dyFloat
+                local dy = math.floor(accum + 0.0001)
+                if dy >= 1 then MoveMouseRelative(0, dy); accum = accum - dy end
+                local remain = nextTick - GetRunningTime()
+                if remain > 0 then Sleep(remain) else nextTick = GetRunningTime() end
+            end
+        else -- "hybrid"
+            hybridLoop()
+        end
+        return
+    end
+
+    if event == "MOUSE_BUTTON_RELEASED" and arg == 1 then
+        lmbHeld = false
+        return
+    end
+end
