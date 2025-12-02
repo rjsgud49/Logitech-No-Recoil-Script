@@ -56,5 +56,6 @@ https://inflective-chia-inarguously.ngrok-free.dev/gps/status?missionId=20251202
 
 https://inflective-chia-inarguously.ngrok-free.dev/gps/status?missionId=20251202-004&vehicle=63&title=구급%20출동&address=경상북도%20의성군%20정재면%20120-5&desc=응급%20후%20환자%20수신
 
+https://inflective-chia-inarguably.ngrok-free.dev/gps/status?missionId=20251202-002&vehicle=61&title=의성읍%20교통사고&address=경상북도%20의성군%20봉양면%2030-12&desc=2중%20추돌사고
 
 
