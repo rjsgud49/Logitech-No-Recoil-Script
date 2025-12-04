@@ -50,7 +50,6 @@ v4와 같으며 onoff는 존재하지 않으며 항상on상태이다 그리고 �
 마우스 dpi버튼으로 on off하며 지속사격시에 화면이 내려가는 오류가 있어 사격끝에는 화면을 250px올린다
 
 
-https://172.28.4.213:5174/gps/status?missionId=20251202-002&vehicle=61&title=의성읍%20교통사고&address=경상북도%20의성군%20봉양면%2030-12&desc=2중%20추돌사고
-
+ https : //fire.rjsgud.com/gps/ready?missionId=31&vehicle=60'
 
 
