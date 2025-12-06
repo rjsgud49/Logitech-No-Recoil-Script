@@ -53,3 +53,5 @@ v4와 같으며 onoff는 존재하지 않으며 항상on상태이다 그리고 �
  https : //fire.rjsgud.com/gps/ready?missionId=31&vehicle=60'
 
 
+https://fire.rjsgud.com/map/navigation?startLat=37.5554048&startLon=127.041536&dest=%EA%B2%BD%EC%83%81%EB%B6%81%EB%8F%84%20%EC%9D%98%EC%84%B1%EA%B5%B0%20%EB%B4%89%EC%96%91%EB%A9%B4%20%EB%B4%89%ED%98%B8%EB%A1%9C%2014&title=%EA%B2%BD%EB%B6%81%EC%86%8C%ED%94%84%ED%8A%B8%EC%9B%A8%EC%96%B4%EB%A7%88%EC%9D%B4%EC%8A%A4%ED%84%B0%EA%B3%A0%EB%93%B1%ED%95%99%EA%B5%90&desc=%EA%B2%BD%EB%B6%81%EC%86%8C%ED%94%84%ED%8A%B8%EC%9B%A8%EC%96%B4%EB%A7%88%EC%9D%B4%EC%8A%A4%ED%84%B0%EA%B3%A0%EB%93%B1%ED%95%99%EA%B5%90%EC%97%90%20%EB%B6%88%EC%9D%B4%20%EB%82%AC%EC%8A%B5%EB%8B%88&vehicle=60
+
